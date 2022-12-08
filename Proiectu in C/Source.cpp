@@ -1,101 +1,110 @@
-﻿#include <iostream>
-float a[12][13], b[12][13], a1[12][13], b1[12][13];
-int i, j, k = 1, n, m;
-void citire_date() {
-	std::cout << "Introdu dimensiunile matricii(n,m): " << '\n';
-	std::cin >> n >> m;
-	std::cout << "Introdu matricea: " << '\n';
-	for (i = 1; i <= n; i++)
-		for (j = 1; j <= m; j++)
-			std::cin >> a[i][j];
+﻿#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#include <iostream>
+struct mat { float z[12][13]; int m; int n; };
+void citire_date(mat& a) {
+	printf("Introdu dimensiunile matricii(n,m): \n");
+	scanf("%d", &a.n);
+	scanf("%d", &a.m);
+	printf("Introdu matricea: \n");
+	for (int i = 0; i <= a.n - 1; i++)
+		for (int j = 0; j <= a.m - 1; j++)
+			scanf("%f", &a.z[i][j]);
 	printf("Introdu vectorul x:\n");
-	for (i = 1; i <= n; i++) std::cin >> a[i][m + 1];
+	for (int i = 0; i <= a.n - 1; i++) scanf("%f", &a.z[i][a.m]);
 	printf("\n");
-
 }
-void copiere(float a[12][13], float b[12][13]) {
-	for (i = 1; i <= n; i++) {
-		for (j = 1; j <= m + 1; j++)
-			a[i][j] = b[i][j];
+void copiere(mat& a, mat& b) {
+	a.n = b.n;
+	a.m = b.m;
+	for (int i = 0; i <= a.n-1; i++) {
+		for (int j = 0; j <= a.m; j++)
+			a.z[i][j] = b.z[i][j];
 	}
 }
-void afisare(float a[12][13]) {
-	for (i = 1; i <= n; i++) {
-		for (j = 1; j <= m + 1; j++) {
-			if (j == m + 1) a[i][j] >= 0 ? printf("  %.2f ", a[i][j]) : printf(" %.2f ", a[i][j]);
-			else a[i][j] >= 0 ? printf("%.2f  ", a[i][j]) : printf("%.2f ", a[i][j]);
+void afisare(mat& a) {
+	for (int i = 0; i <= a.n-1; i++) {
+		for (int j = 0; j <= a.m; j++) {
+			if (j == a.m) a.z[i][j] >= 0 ? printf("  %.2f ", a.z[i][j]) : printf(" %.2f ", a.z[i][j]);
+			else a.z[i][j] >= 0 ? printf("%.2f  ", a.z[i][j]) : printf("%.2f ", a.z[i][j]);
 		}
 		printf("\n");
 	}
+	printf("\n");
 }
-void transformare(float a[12][13], float b[12][13]) {
-	for (k = 1; k <= n; k++) {
-		for (j = 1; j <= m + 1; j++)
-			for (i = 1; i <= n; i++) {
-				b[i][j] = (a[i][j] * a[k][k] - a[i][k] * a[k][j]) / a[k][k];
-				b[k][j] = a[k][j] / a[k][k];
-				b[i][k] = 0;
-				b[k][k] = 1;
+void transformare(mat& a, mat& b) {
+	for(int k = 0; k < a.n; k++) {
+		for (int j = 0; j < a.m + 1; j++)
+			for (int i = 0; i < a.n; i++) {
+				b.z[i][j] = (a.z[i][j] * a.z[k][k] - a.z[i][k] * a.z[k][j]) / a.z[k][k];
+				b.z[k][j] = a.z[k][j] / a.z[k][k];
+				b.z[i][k] = 0;
+				b.z[k][k] = 1;
 			}
+		/*for (int j = 0; j < a.m; j++)
+			for (int i = 0; i < a.n; i++) {
+				if (i != k && j != k) a.z[i][j] = (a.z[i][j] * a.z[k][k] - a.z[i][k] * a.z[k][j]) / a.z[k][k];
+			}
+		for (int i = 0; i < a.m; i++) {
+			if (i != k) a.z[k][i] = a.z[k][i] / a.z[k][k];
+		}
+		for (int i = 0; i < a.n; i++) {
+			if (i == k) a.z[i][k] = 1;
+			else a.z[i][k] = 0;
+		}*/
 		copiere(a, b);
-		afisare(a);
-		printf("\n");
 	}
 }
-void solutie(float a[12][13]) {
-	std::cout << "Solutia este vectorul v=(";
-	for (i = 1; i <= n; i++) {
-		if (i < n) printf("x%d = %.2f, ", i, a[i][m + 1]);
-		else printf("x%d = %.2f).\n", i, a[i][m + 1]);
+void solutie(mat& a) {
+	printf("Solutia este vectorul v=( ");
+	for (int i = 0; i < a.n; i++) {
+		if (i < a.n - 1) printf("x%d = %.2f, ", i + 1, a.z[i][a.m]);
+		else printf("x%d = %.2f ).\n", i + 1, a.z[i][a.m]);
 	}
 }
-void sist() {
-	citire_date();
+void sist(mat& a, mat& b, mat& a1) {
+	citire_date(a);
 	copiere(a1, a);
 	copiere(b, a);
 	transformare(a, b);
+	afisare(a);
 	solutie(a);
 }
 
-void inversa() {
-	printf("Inversa functiei este: \n");
-	for (i = 1; i <= n; i++) {
-		for (j = 1; j <= m + n; j++)
-			printf("%.2f ", a1[i][j]);
+void inversa(mat& a) {
+	printf("Inversa functiei este: \n\n");
+	for (int i = 0; i < a.n; i++) {
+		for (int j = 0; j < a.m; j++)
+			printf("%.2f ", a.z[i][j]);
 		printf("\n");
 	}
+	printf("\n");
 }
-void transformare2(float a1[12][13], float b1[12][13]) {
-	for (k = 1; k <= n; k++) {
-		for (j = 1; j <= m + n; j++)
-			for (i = 1; i <= n; i++) {
-				b1[i][j] = (a1[i][j] * a1[k][k] - a1[i][k] * a1[k][j]) / a1[k][k];
-				b1[k][j] = a1[k][j] / a1[k][k];
-				b1[i][k] = 0;
-				b1[k][k] = 1;
-			}
-		copiere(a1, b1);
-		printf("\n");
+void transformare2(mat& a1, mat& b1, mat& b) {
+	for (int k = 0; k < a1.n; k++) {
+		for (int i = 0; i < a1.n; i++)
+			a1.z[i][a1.m] = b.z[i][k];
+		mat aux1, aux2;
+		copiere(aux1, a1);
+		copiere(aux2, a1);
+		transformare(a1, aux1);
+		for (int i = 0; i < a1.n; i++)
+			b1.z[i][k] = a1.z[i][a1.m];
+		copiere(a1, aux2);
+		copiere(aux1, a1);
 	}
 }
-void creare_compl() {
-	for (i = 1; i <= n; i++)
-		for (j = m + 1; j <= m + n; j++)
-		{
-			if (i == j - m) a1[i][j] = 1;
-			else a1[i][j] = 0;
-		}
-	copiere(b1, a1);
-}
-void inv() {
-	creare_compl();
-	copiere(b1, a1);
-	transformare2(a1, b1);
-	inversa();
+void inv(mat& a1, mat& b1, mat& b) {
+	transformare2(a1, b1, b);
+	printf("\n");
+	inversa(b1);
 }
 
 int main() {
-	sist();
-	inv();
+	mat a, b, a1, b1;
+	sist(a,b,a1);
+	copiere(b1, b);
+	inv(a1, b1, b);
 	system("pause");
 }
